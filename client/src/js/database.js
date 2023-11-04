@@ -12,20 +12,42 @@ const initdb = async () =>
     },
   });
 
-// TODO: Add logic to a method that accepts some content and adds it to the database
-// This function will eventually handle putting content into the database
-export const putDb = async (content) => {
-  // Placeholder for actual implementation
-  console.error('putDb not implemented');
-  // TODO: Implement database put logic
-};
-
-// This function will eventually handle getting content from the database
-export const getDb = async () => {
-  // Placeholder for actual implementation
-  console.error('getDb not implemented');
-  // TODO: Implement database get logic
-};
-
-
-initdb();
+  export const dbActions = async (action, content = null) => {
+    console.log(`${action.toUpperCase()} to the database`);
+  
+    // Common code for opening a connection to the database.
+    const contactDb = await openDB('jate', 1);
+    const tx = contactDb.transaction('jate', action === 'put' ? 'readwrite' : 'readonly');
+    const store = tx.objectStore('jate');
+  
+    let result;
+    switch (action) {
+      case 'put':
+        // Use the .put() method on the store and pass in the content.
+        const putRequest = store.put({ id: 1, value: content });
+        result = await putRequest;
+        console.log('🚀 - data saved to the database', result);
+        break;
+      case 'get':
+        // Use the .getAll() method to get all data in the database.
+        const getAllRequest = store.getAll();
+        result = await getAllRequest;
+        console.log('result.value', result);
+        return result?.value;
+      default:
+        throw new Error('Unsupported action');
+    }
+  };
+  
+  export const putDb = async (content) => {
+    return dbActions('put', content);
+  };
+  
+  export const getDb = async () => {
+    return dbActions('get');
+  };
+  
+  // Since initdb() was called at the bottom previously, we assume it's necessary to initialize the database.
+  // This call should be moved to a place that makes sense in your application initialization code.
+  initdb();
+  
