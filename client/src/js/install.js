@@ -1,20 +1,42 @@
-const butInstall = document.getElementById('buttonInstall');
-
-// Logic for installing the PWA
-// TODO: Add an event handler to the `beforeinstallprompt` event
-window.addEventListener('beforeinstallprompt', (event) => {});
-
-// This section of the code is meant to set up an event listener for click events on the `butInstall` element.
-// The actual implementation of the click event handler needs to be added in the future.
-// TODO: Implement a click event handler on the `butInstall` element
-butInstall.addEventListener('click', async () => {
-    // Placeholder for the click event handler logic
-  });
+class InstallButtonHandler {
+    constructor(buttonId) {
+      this.butInstall = document.getElementById(buttonId);
+      this.deferredPrompt = null;
   
-  // This part is for setting up an event listener for the 'appinstalled' event on the window object.
-  // The actual event handler logic is to be implemented.
-  // TODO: Add a handler for the `appinstalled` event
-  window.addEventListener('appinstalled', (event) => {
-    // Placeholder for the appinstalled event handler logic
-  });
+      this.initialize();
+    }
+  
+    initialize() {
+      window.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt.bind(this));
+      this.butInstall.addEventListener('click', this.handleInstallClick.bind(this));
+      window.addEventListener('appinstalled', this.handleAppInstalled.bind(this));
+    }
+  
+    handleBeforeInstallPrompt(event) {
+      console.log('beforeinstallprompt event fired');
+      event.preventDefault();
+      this.deferredPrompt = event;
+      this.toggleInstallButton(false); // Show the install button
+    }
+  
+    handleInstallClick() {
+      if (!this.deferredPrompt) return;
+  
+      this.deferredPrompt.prompt();
+      this.deferredPrompt = null;
+      this.toggleInstallButton(true); // Hide the install button after prompt
+    }
+  
+    handleAppInstalled(event) {
+      console.log('appinstalled event fired');
+      this.deferredPrompt = null;
+    }
+  
+    toggleInstallButton(isHidden) {
+      this.butInstall.classList.toggle('hidden', isHidden);
+    }
+  }
+  
+  // Initialize the handler for the install button.
+  const installButtonHandler = new InstallButtonHandler("buttonInstall");
   
